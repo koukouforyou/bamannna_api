@@ -21,6 +21,7 @@
         "wwwroot/Common/Scripts/passwordComplexityHelper.js",
         "wwwroot/Common/Scripts/ResourceLoader.js",
         "wwwroot/Common/Scripts/utils.js"
+
       ]
     },
     {
