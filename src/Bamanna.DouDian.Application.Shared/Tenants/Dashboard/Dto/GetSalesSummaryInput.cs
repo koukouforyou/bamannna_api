@@ -1,0 +1,7 @@
+﻿namespace Bamanna.DouDian.Tenants.Dashboard.Dto
+{
+    public class GetSalesSummaryInput
+    {
+        public SalesSummaryDatePeriod SalesSummaryDatePeriod { get; set; }
+    }
+}
