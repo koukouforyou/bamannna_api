@@ -32,9 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="bin\Debug\netcoreapp2.2\swagger.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="bin\Debug\netcoreapp2.2\swagger.xml" />
   </ItemGroup>
 
   <ItemGroup>
