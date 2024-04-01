@@ -22,17 +22,17 @@
 
   <ItemGroup>
     <Compile Remove="App_Data\**" />
-    <Compile Remove="bin\**" />
     <Content Remove="App_Data\**" />
-    <Content Remove="bin\**" />
     <EmbeddedResource Remove="App_Data\**" />
-    <EmbeddedResource Remove="bin\**" />
     <None Remove="App_Data\**" />
-    <None Remove="bin\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Remove="wwwroot\swagger\ui\index.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\netcoreapp2.2\swagger.xml" />
   </ItemGroup>
 
   <ItemGroup>
