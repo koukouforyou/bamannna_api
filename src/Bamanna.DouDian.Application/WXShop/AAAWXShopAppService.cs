@@ -16,6 +16,7 @@ using OfficeOpenXml.ConditionalFormatting;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -637,8 +638,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -768,8 +767,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -842,8 +839,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -917,8 +912,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -988,7 +981,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -1059,7 +1051,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -1074,7 +1065,6 @@ namespace Bamanna.DouDian.WXShop
         public async Task<Dictionary<string, PriceResult>> GetAllPriceChangeByDay(IFormFile tbfile, IFormFile pddfile, IFormFile dyfile, IFormFile ksfile, IFormFile xhsfile, IFormFile channelfile1, IFormFile channelfile2)
         {
             var result = new Dictionary<string, PriceResult>();
-
             if (!tbfile.IsNull())
             {
                 var tbresult = await GetTaoBaoPriceChangeByDay(tbfile);
@@ -1205,7 +1195,10 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.evening += item.Value.evening;
             }
 
+            result = result.OrderBy(kep => Convert.ToDateTime(kep.Key)).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
+
             result.Add("All", allPriceResult);
+
             return result;
         }
 
