@@ -16,6 +16,7 @@ using OfficeOpenXml.ConditionalFormatting;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,9 +34,11 @@ namespace Bamanna.DouDian.WXShop
 
         private static string morningbegin = "6:30";
         private static string morningend = "12:00";
-        private static string afternoonbegin = "13:00";
-        private static string afternoonend = "19:30";
-        private static string eveningbegin = "19:30";
+
+        private static string afternoonbegin = "13:30";
+        private static string afternoonend = "19:00";
+
+        private static string eveningbegin = "19:00";
         private static string eveningend = "23:59";
 
         TimeSpan dspMorningBegin = DateTime.Parse(morningbegin).TimeOfDay;
@@ -55,6 +58,7 @@ namespace Bamanna.DouDian.WXShop
 
         private int size = 400;
 
+        #region Obsolete
         [HttpPost]
         [Obsolete]
         [SwaggerIgnore]
@@ -500,6 +504,66 @@ namespace Bamanna.DouDian.WXShop
         }
 
         /// <summary>
+        /// 有赞报表统计
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [DisableAuditing]
+        [Obsolete]
+        [SwaggerIgnore]
+        [AbpAllowAnonymous]
+        public async Task<Dictionary<string, PriceResult>> GetYouZanPriceChangeByDay(IFormFile file)
+        {
+            return await GetPriceChangeByDay(file, "订单创建时间", "订单实付金额");
+            var result = new Dictionary<string, PriceResult>();
+            var errorcount = 0;
+            if (file.Length > 0)
+            {
+                var list = new List<TaobaoSaleModel>();
+                DataTable dt = new DataTable();
+                dt = NPOIExtensions.ExcelToDatatable(file.OpenReadStream(), Path.GetExtension(file.FileName), out string strMsg);
+                if (dt.Rows.Count > 0)
+                {
+                    foreach (DataRow item in dt.Rows)
+                    {
+                        try
+                        {
+                            list.Add(new TaobaoSaleModel
+                            {
+                                date = Convert.ToDateTime(item["订单创建时间"]),
+                                price = Convert.ToDouble(item["订单实付金额"])
+                            });
+                        }
+                        catch
+                        {
+                            errorcount++;
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("没数据");
+                }
+
+                var list2 = list.GroupBy(e => e.date.Date).ToList();
+                foreach (var item in list.OrderBy(e => e.date.Date).GroupBy(e => e.date.Date))
+                {
+                    result.Add(item.Key.ToString(), new PriceResult
+                    {
+                        morning = item.Where(e => dspMorningBegin < Convert.ToDateTime(e.date).TimeOfDay && Convert.ToDateTime(e.date).TimeOfDay < dspMorningEnd).Sum(e => e.price),
+                        afternoon = item.Where(e => dspAfternoonBegin < Convert.ToDateTime(e.date).TimeOfDay && Convert.ToDateTime(e.date).TimeOfDay < dspAfternoonEnd).Sum(e => e.price),
+                        evening = item.Where(e => dspEveningBegin < Convert.ToDateTime(e.date).TimeOfDay && Convert.ToDateTime(e.date).TimeOfDay < dspEveningEnd).Sum(e => e.price)
+                    });
+                }
+            }
+            Console.WriteLine(errorcount);
+            return result;
+        }
+
+#endregion
+
+        /// <summary>
         /// 视频号小店报表统计
         /// </summary>
         /// <param name="file"></param>
@@ -574,8 +638,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -705,8 +767,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -779,66 +839,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
-            return result;
-        }
-
-        /// <summary>
-        /// 有赞报表统计
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [DisableAuditing]
-        [Obsolete]
-        [SwaggerIgnore]
-        [AbpAllowAnonymous]
-        public async Task<Dictionary<string, PriceResult>> GetYouZanPriceChangeByDay(IFormFile file)
-        {
-            return await GetPriceChangeByDay(file, "订单创建时间", "订单实付金额");
-            var result = new Dictionary<string, PriceResult>();
-            var errorcount = 0;
-            if (file.Length > 0)
-            {
-                var list = new List<TaobaoSaleModel>();
-                DataTable dt = new DataTable();
-                dt = NPOIExtensions.ExcelToDatatable(file.OpenReadStream(), Path.GetExtension(file.FileName), out string strMsg);
-                if (dt.Rows.Count > 0)
-                {
-                    foreach (DataRow item in dt.Rows)
-                    {
-                        try
-                        {
-                            list.Add(new TaobaoSaleModel
-                            {
-                                date = Convert.ToDateTime(item["订单创建时间"]),
-                                price = Convert.ToDouble(item["订单实付金额"])
-                            });
-                        }
-                        catch
-                        {
-                            errorcount++;
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("没数据");
-                }
-
-                var list2 = list.GroupBy(e => e.date.Date).ToList();
-                foreach (var item in list.OrderBy(e => e.date.Date).GroupBy(e => e.date.Date))
-                {
-                    result.Add(item.Key.ToString(), new PriceResult
-                    {
-                        morning = item.Where(e => dspMorningBegin < Convert.ToDateTime(e.date).TimeOfDay && Convert.ToDateTime(e.date).TimeOfDay < dspMorningEnd).Sum(e => e.price),
-                        afternoon = item.Where(e => dspAfternoonBegin < Convert.ToDateTime(e.date).TimeOfDay && Convert.ToDateTime(e.date).TimeOfDay < dspAfternoonEnd).Sum(e => e.price),
-                        evening = item.Where(e => dspEveningBegin < Convert.ToDateTime(e.date).TimeOfDay && Convert.ToDateTime(e.date).TimeOfDay < dspEveningEnd).Sum(e => e.price)
-                    });
-                }
-            }
-            Console.WriteLine(errorcount);
             return result;
         }
 
@@ -912,8 +912,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -983,7 +981,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -1054,7 +1051,6 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.afternoon += item.Value.afternoon;
                 allPriceResult.evening += item.Value.evening;
             }
-            result.Add("AllSingle", allPriceResult);
             return result;
         }
 
@@ -1069,7 +1065,6 @@ namespace Bamanna.DouDian.WXShop
         public async Task<Dictionary<string, PriceResult>> GetAllPriceChangeByDay(IFormFile tbfile, IFormFile pddfile, IFormFile dyfile, IFormFile ksfile, IFormFile xhsfile, IFormFile channelfile1, IFormFile channelfile2)
         {
             var result = new Dictionary<string, PriceResult>();
-
             if (!tbfile.IsNull())
             {
                 var tbresult = await GetTaoBaoPriceChangeByDay(tbfile);
@@ -1200,7 +1195,10 @@ namespace Bamanna.DouDian.WXShop
                 allPriceResult.evening += item.Value.evening;
             }
 
+            result = result.OrderBy(kep => Convert.ToDateTime(kep.Key)).ToDictionary(kvp=>kvp.Key,kvp=>kvp.Value);
+
             result.Add("All", allPriceResult);
+
             return result;
         }
 
