@@ -570,7 +570,7 @@ namespace Bamanna.DouDian.WXShop
         /// <returns></returns>
         [HttpPost]
         [DisableAuditing]
-        public async Task<Dictionary<string, PriceResult>> GetChannelShopPriceChangeByDay(IFormFile file)
+        public async Task<Dictionary<string, PriceResult>> GetChannelShopPriceChangeByDay(IFormFile file,string channelName)
         {
             var result = new Dictionary<string, PriceResult>();
             var errorcount = 0;
@@ -586,8 +586,8 @@ namespace Bamanna.DouDian.WXShop
                         try
                         {
                             //筛选达人带货订单
-                            if (Convert.ToString(item["带货人视频号"]) == "紫缘阁服饰"
-                                || Convert.ToString(item["带货人视频号"]).IsNullOrEmpty()
+                            if (Convert.ToString(item["账号昵称"]) == channelName
+                                || Convert.ToString(item["账号昵称"]).IsNullOrEmpty()
                                 )
                             {
                                 //筛选售后订单
@@ -605,7 +605,7 @@ namespace Bamanna.DouDian.WXShop
                             }
                             else
                             {
-                                Console.WriteLine(Convert.ToString(item["带货人视频号"]));
+                                Console.WriteLine(Convert.ToString(item["账号昵称"]));
                             }
                         }
                         catch
@@ -1062,7 +1062,7 @@ namespace Bamanna.DouDian.WXShop
         [HttpPost]
         [DisableAuditing]
         [AbpAllowAnonymous]
-        public async Task<Dictionary<string, PriceResult>> GetAllPriceChangeByDay(IFormFile tbfile, IFormFile pddfile, IFormFile dyfile, IFormFile ksfile, IFormFile xhsfile, IFormFile channelfile1, IFormFile channelfile2)
+        public async Task<Dictionary<string, PriceResult>> GetAllPriceChangeByDay(IFormFile tbfile, IFormFile pddfile, IFormFile dyfile, IFormFile ksfile, IFormFile xhsfile, IFormFile channelfile1,string channelName, IFormFile channelfile2)
         {
             var result = new Dictionary<string, PriceResult>();
             if (!tbfile.IsNull())
@@ -1154,7 +1154,7 @@ namespace Bamanna.DouDian.WXShop
             }
             if (!channelfile1.IsNull())
             {
-                var channelresult = await GetChannelShopPriceChangeByDay(channelfile1);
+                var channelresult = await GetChannelShopPriceChangeByDay(channelfile1,channelName);
                 foreach (var item in channelresult)
                 {
                     if (result.ContainsKey(item.Key))
@@ -1171,7 +1171,7 @@ namespace Bamanna.DouDian.WXShop
             }
             if (!channelfile2.IsNull())
             {
-                var channelresult = await GetChannelShopPriceChangeByDay(channelfile2);
+                var channelresult = await GetChannelShopPriceChangeByDay(channelfile2, channelName);
                 foreach (var item in channelresult)
                 {
                     if (result.ContainsKey(item.Key))
