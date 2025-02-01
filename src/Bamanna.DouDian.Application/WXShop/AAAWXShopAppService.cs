@@ -599,7 +599,7 @@ namespace Bamanna.DouDian.WXShop
                                     list.Add(new TaobaoSaleModel
                                     {
                                         date = Convert.ToDateTime(item["下单时间"]),
-                                        price = Convert.ToDouble(item["订单实际支付金额"])
+                                        price = Convert.ToDouble(item["订单实际收款金额"])
                                     });
                                 }
                             }
