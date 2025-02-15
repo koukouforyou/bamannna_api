@@ -586,8 +586,8 @@ namespace Bamanna.DouDian.WXShop
                         try
                         {
                             //筛选达人带货订单
-                            if (Convert.ToString(item["账号昵称"]) == channelName
-                                || Convert.ToString(item["账号昵称"]).IsNullOrEmpty()
+                            if (Convert.ToString(item["带货账号昵称"]) == channelName
+                                || Convert.ToString(item["带货账号昵称"]).IsNullOrEmpty()
                                 )
                             {
                                 //筛选售后订单
