@@ -598,14 +598,14 @@ namespace Bamanna.DouDian.WXShop
                                 {
                                     list.Add(new TaobaoSaleModel
                                     {
-                                        date = Convert.ToDateTime(item["下单时间"]),
+                                        date = Convert.ToDateTime(item["订单下单时间"]),
                                         price = Convert.ToDouble(item["订单实际收款金额"])
                                     });
                                 }
                             }
                             else
                             {
-                                Console.WriteLine(Convert.ToString(item["账号昵称"]));
+                                Console.WriteLine(Convert.ToString(item["带货账号昵称"]));
                             }
                         }
                         catch
