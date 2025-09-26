@@ -586,8 +586,7 @@ namespace Bamanna.DouDian.WXShop
                         try
                         {
                             //筛选达人带货订单
-                            if (Convert.ToString(item["带货账号昵称"]) == channelName
-                                || Convert.ToString(item["带货账号昵称"]).IsNullOrEmpty()
+                            if (channelName.IsNullOrEmpty() || Convert.ToString(item["带货账号昵称"]) == channelName
                                 )
                             {
                                 //筛选售后订单
@@ -850,7 +849,7 @@ namespace Bamanna.DouDian.WXShop
         [HttpPost]
         [DisableAuditing]
         [AbpAllowAnonymous]
-        public async Task<Dictionary<string, PriceResult>> GetDouDianPriceChangeByDay(IFormFile file)
+        public async Task<Dictionary<string, PriceResult>> GetDouDianPriceChangeByDay(IFormFile file,string channelName)
         {
             //return await GetPriceChangeByDay(file, "支付完成时间", "商品单价");
             var result = new Dictionary<string, PriceResult>();
@@ -868,16 +867,19 @@ namespace Bamanna.DouDian.WXShop
                         {
                             try
                             {
-                                if ((Convert.ToString(item["订单状态"]) == "已完成"
-                                ) &&
-                                    Convert.ToString(item["售后状态"]) != "退款成功"
-                                    )
+                                if (channelName.IsNullOrEmpty() || (Convert.ToString(item["达人昵称"]) == channelName))
                                 {
-                                    list.Add(new TaobaoSaleModel
+                                    if ((Convert.ToString(item["订单状态"]) == "已完成"
+                                    ) &&
+                                        Convert.ToString(item["售后状态"]) != "退款成功"
+                                        )
                                     {
-                                        date = Convert.ToDateTime(item["支付完成时间"]),
-                                        price = Convert.ToDouble(item["商品单价"])
-                                    });
+                                        list.Add(new TaobaoSaleModel
+                                        {
+                                            date = Convert.ToDateTime(item["支付完成时间"]),
+                                            price = Convert.ToDouble(item["商品单价"])
+                                        });
+                                    }
                                 }
                             }
                             catch
@@ -1102,7 +1104,7 @@ namespace Bamanna.DouDian.WXShop
             }
             if (!dyfile.IsNull())
             {
-                var dyresult = await GetDouDianPriceChangeByDay(dyfile);
+                var dyresult = await GetDouDianPriceChangeByDay(dyfile,channelName);
                 foreach (var item in dyresult)
                 {
                     if (result.ContainsKey(item.Key))
